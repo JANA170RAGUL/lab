@@ -20,16 +20,6 @@ const AICTE_EVENT_TYPES = [
   "Others (AICTE-approved only)",
 ];
 
-/* ================= FILTER OPTIONS ================= */
-const ACADEMIC_YEARS = ["2024–25", "2023–24", "2022–23"];
-const EVENT_STATUSES = [
-  "Draft",
-  "Registration Open",
-  "LIVE",
-  "Completed",
-  "Archived",
-];
-
 /* ================= SHARED FILTER STYLE ================= */
 const filterStyle = {
   padding: "8px 10px",
@@ -38,25 +28,11 @@ const filterStyle = {
   fontSize: "13px",
 };
 
-/* ================= EVENT LIFECYCLE ================= */
-const EVENT_LIFECYCLE = [
-  "Draft",
-  "Approval Confirmed",
-  "Registration Open",
-  "LIVE",
-  "Attendance Locked",
-  "Feedback Closed",
-  "Certificates Generated",
-  "Archived",
-];
-
-/* ================= ACTIONS BY STAGE ================= */
+/* ================= ACTIONS BY STATUS ================= */
 const ACTIONS_BY_STAGE = {
   Draft: ["Edit Event", "Upload Approval Confirmation"],
   "Registration Open": ["Close Registration", "View Registrations"],
-  LIVE: ["Display Attendance QR", "Monitor Attendance"],
-  "Attendance Locked": ["Open / Lock Feedback"],
-  "Feedback Closed": ["Generate Certificates"],
+  LIVE: ["Monitor Event"],
   Completed: [
     "Upload Evidence",
     "Add Awards & Outcomes",
@@ -69,65 +45,64 @@ function AdminEvents() {
   const navigate = useNavigate();
   const [showHostModal, setShowHostModal] = useState(false);
 
-  /* ================= EVENTS TABLE ================= */
-  const columns = [
-    "Event No",
-    "Event Name",
-    "Event Type",
-    "Dates",
-    "Days",
-    "AICTE Points",
-    "Registrations",
-    "Attendance",
-    "Feedback",
-    "Certificates",
-    "Status",
-    "Actions",
-  ];
-
+  /* ================= EVENTS (NUMERIC EVENT NUMBERS) ================= */
   const events = [
     {
       id: 1,
-      number: "EVT-001",
+      number: 1,
       name: "FDP on Artificial Intelligence",
       type: "FDP",
-      dates: "10 Jun – 12 Jun",
+      startDate: "2024-06-10",
+      endDate: "2024-06-12",
       days: 3,
-      points: 30,
       registrations: "45 / 40",
-      attendance: "LIVE",
-      feedback: "82%",
       certificates: "Generated",
       status: "LIVE",
     },
     {
       id: 2,
-      number: "EVT-002",
+      number: 2,
       name: "Startup Bootcamp",
       type: "Bootcamp",
-      dates: "15 Jun – 16 Jun",
+      startDate: "2024-06-15",
+      endDate: "2024-06-16",
       days: 2,
-      points: 20,
       registrations: "60 / 55",
-      attendance: "Locked",
-      feedback: "100%",
       certificates: "Generated",
       status: "Completed",
     },
     {
       id: 3,
-      number: "EVT-003",
+      number: 3,
       name: "Ideation Workshop",
       type: "Ideation Workshop",
-      dates: "22 Jun – 23 Jun",
+      startDate: "2024-06-22",
+      endDate: "2024-06-23",
       days: 2,
-      points: 20,
       registrations: "12 / 5",
-      attendance: "Not Started",
-      feedback: "0%",
       certificates: "Pending",
       status: "Draft",
     },
+  ];
+
+  /* ================= AUTO EVENT NUMBER ================= */
+  const getNextEventNumber = () => {
+    if (events.length === 0) return 1;
+    return Math.max(...events.map((e) => Number(e.number))) + 1;
+  };
+
+  /* ================= TABLE STRUCTURE (FINAL) ================= */
+  const columns = [
+    "Event No",
+    "Event Name",
+    "Event Type",
+    "Start Date",
+    "End Date",
+    "Days",
+    "Registrations",
+    "Certificates",
+    "Status",
+    "Actions",
   ];
 
   const tableData = events.map((event) => [
@@ -140,12 +115,10 @@ function AdminEvents() {
       {event.name}
     </span>,
     event.type,
-    event.dates,
+    event.startDate,
+    event.endDate,
     event.days,
-    event.points,
     event.registrations,
-    <Badge label={event.attendance} />,
-    event.feedback,
     <Badge
       label={event.certificates}
       type={event.certificates === "Generated" ? "success" : "warning"}
@@ -171,7 +144,7 @@ function AdminEvents() {
 
   return (
     <>
-      {/* ================= SECTION 1: PAGE HEADER ================= */}
+      {/* ================= PAGE HEADER ================= */}
       <Card>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
@@ -182,55 +155,62 @@ function AdminEvents() {
               Governed Event Hosting & Lifecycle Management
             </div>
           </div>
-
-          <Button onClick={() => setShowHostModal(true)}>
-            ➕ Host Event
-          </Button>
+          <Button onClick={() => setShowHostModal(true)}>➕ Host Event</Button>
         </div>
       </Card>
 
-      {/* ================= SECTION 2 ================= */}
-      <Card title="AICTE-Approved Event Types (Governance)">
-        <div style={{ fontSize: "13px", marginBottom: "12px" }}>
-          Events hosted under the IDEA Lab must strictly belong to one of the
-          following AICTE-approved categories.
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))", gap: "8px" }}>
+      {/* ================= EVENT TYPES ================= */}
+      <Card title="AICTE-Approved Event Types">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))",
+            gap: "8px",
+          }}
+        >
           {AICTE_EVENT_TYPES.map((type) => (
-            <div key={type} style={{ padding: "8px", background: "#f3f4f6", borderRadius: "6px" }}>
+            <div
+              key={type}
+              style={{
+                padding: "8px",
+                background: "#f3f4f6",
+                borderRadius: "6px",
+              }}
+            >
               {type}
             </div>
           ))}
         </div>
       </Card>
 
-      {/* ================= SECTION 3 ================= */}
+      {/* ================= FILTERS ================= */}
       <Card title="Filters & Search">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))", gap: "12px" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px,1fr))",
+            gap: "12px",
+          }}
+        >
           <select style={filterStyle}><option>Academic Year</option></select>
           <select style={filterStyle}><option>Event Type</option></select>
           <select style={filterStyle}><option>Event Status</option></select>
           <input type="date" style={filterStyle} />
           <input type="date" style={filterStyle} />
         </div>
+
         <input
           style={{ ...filterStyle, marginTop: "12px", width: "100%" }}
           placeholder="Search by Event Name / Event Number"
         />
       </Card>
 
-      {/* ================= SECTION 4 + 6 ================= */}
+      {/* ================= EVENTS TABLE ================= */}
       <Card title="All Events (Governed View)">
         <Table columns={columns} data={tableData} />
       </Card>
 
-      {/* ================= SECTION 5 ================= */}
-      <Card title="Event Lifecycle (Governance Enforced)">
-        Draft → Approval → Registration → LIVE → Attendance → Feedback →
-        Certificate → Archived
-      </Card>
-
-      {/* ================= SECTION 7: HOST EVENT MODAL ================= */}
+      {/* ================= HOST EVENT MODAL ================= */}
       {showHostModal && (
         <div
           style={{
@@ -243,36 +223,105 @@ function AdminEvents() {
             zIndex: 50,
           }}
         >
-          <div style={{ background: "#fff", padding: "24px", width: "520px", borderRadius: "8px" }}>
+          <div
+            style={{
+              background: "#fff",
+              padding: "24px",
+              width: "520px",
+              borderRadius: "8px",
+            }}
+          >
             <h2>Host New Event</h2>
 
-            <select style={{ ...filterStyle, width: "100%", marginTop: "12px" }}>
+            {/* Auto Event Number */}
+            <div
+              style={{
+                marginTop: "8px",
+                fontSize: "13px",
+                background: "#f9fafb",
+                padding: "8px 10px",
+                borderRadius: "6px",
+                border: "1px solid #e5e7eb",
+              }}
+            >
+              Event Number (Auto-generated):{" "}
+              <strong>{getNextEventNumber()}</strong>
+            </div>
+
+            <select
+              style={{ ...filterStyle, width: "100%", marginTop: "12px" }}
+            >
               <option>Event Type *</option>
               {AICTE_EVENT_TYPES.map((t) => (
                 <option key={t}>{t}</option>
               ))}
             </select>
 
-            <input style={{ ...filterStyle, marginTop: "8px" }} placeholder="Event Number *" />
-            <input style={{ ...filterStyle, marginTop: "8px" }} placeholder="Event Name *" />
-            <textarea style={{ ...filterStyle, marginTop: "8px" }} placeholder="Description" />
+            <input
+              style={{ ...filterStyle, marginTop: "8px" }}
+              placeholder="Event Name *"
+            />
+
+            <textarea
+              style={{ ...filterStyle, marginTop: "8px" }}
+              placeholder="Description"
+            />
 
             <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
               <input type="date" style={filterStyle} />
               <input type="date" style={filterStyle} />
             </div>
 
-            <div style={{ fontSize: "13px", marginTop: "8px" }}>
-              Duration: Auto | AICTE Points: Auto
+            {/* Approval Document */}
+            <div
+              style={{
+                marginTop: "12px",
+                fontSize: "13px",
+                fontWeight: "600",
+              }}
+            >
+              Attach the Management Approval Document{" "}
+              <span style={{ color: "#dc2626" }}>*</span>
             </div>
 
-            <input type="file" style={{ marginTop: "12px" }} />
+            <input
+              type="file"
+              style={{ marginTop: "6px" }}
+              accept=".pdf,.jpg,.png"
+            />
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "16px" }}>
-              <Button variant="secondary" onClick={() => setShowHostModal(false)}>
+            <div
+              style={{
+                marginTop: "6px",
+                fontSize: "12px",
+                color: "#6b7280",
+              }}
+            >
+              This document is mandatory before registrations can be opened.
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: "8px",
+                marginTop: "16px",
+              }}
+            >
+              <Button
+                variant="secondary"
+                onClick={() => setShowHostModal(false)}
+              >
                 Cancel
               </Button>
-              <Button onClick={() => alert("Saved as Draft")}>
+              <Button
+                onClick={() => {
+                  alert(
+                    `Saved as Draft\nEvent Number: ${getNextEventNumber()}`
+                  );
+                  setShowHostModal(false);
+                }}
+              >
                 Save as Draft
               </Button>
             </div>

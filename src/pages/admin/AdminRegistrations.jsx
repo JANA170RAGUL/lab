@@ -23,6 +23,35 @@ const inputStyle = {
   fontSize: "13px",
 };
 
+/* ================= EMAIL MESSAGE GOVERNANCE ================= */
+const approvalEmailMessage = (student, eventName) => ({
+  subject: `Registration Approved – ${eventName}`,
+  body: `Dear ${student.name},
+
+We are pleased to inform you that your registration for "${eventName}" has been approved.
+
+You are now eligible to participate in the event. Further updates regarding attendance and feedback will be communicated in due course.
+
+Best regards,
+AICTE IDEA Lab Team`,
+});
+
+const rejectionEmailMessage = (student, eventName) => ({
+  subject: `Registration Update – ${eventName}`,
+  body: `Dear ${student.name},
+
+Thank you for showing interest in "${eventName}".
+
+After careful review, we regret to inform you that your registration could not be approved for this event.
+
+Please note that this decision does not reflect your capabilities or potential. Your registration will be considered for future IDEA Lab events, and we strongly encourage you to continue participating.
+
+We appreciate your enthusiasm and interest.
+
+Warm regards,
+AICTE IDEA Lab Team`,
+});
+
 function AdminRegistrations() {
   /* ================= STATE ================= */
   const [selectedEvent, setSelectedEvent] = useState("");
@@ -34,35 +63,58 @@ function AdminRegistrations() {
   const isEventLive = selectedEventObj?.status === "LIVE";
 
   /* ================= REGISTRATIONS (UI ONLY) ================= */
-  const registrations = selectedEvent
-    ? [
-        {
-          id: 1,
-          roll: "22AD01",
-          name: "Harsha M",
-          email: "harsha@college.edu",
-          dept: "AI & DS",
-          year: "2nd Year",
-          time: "12 Jan 10:32",
-          status: "Pending",
-        },
-        {
-          id: 2,
-          roll: "22AD07",
-          name: "Ananya K",
-          email: "ananya@college.edu",
-          dept: "AI & DS",
-          year: "3rd Year",
-          time: "12 Jan 10:40",
-          status: "Approved",
-        },
-      ]
-    : [];
+  const [registrations, setRegistrations] = useState(
+    selectedEvent
+      ? []
+      : [
+          {
+            id: 1,
+            roll: "22AD01",
+            name: "Harsha M",
+            email: "harsha@college.edu",
+            dept: "AI & DS",
+            year: "2nd Year",
+            time: "12 Jan 10:32",
+            status: "Pending",
+          },
+          {
+            id: 2,
+            roll: "22AD07",
+            name: "Ananya K",
+            email: "ananya@college.edu",
+            dept: "AI & DS",
+            year: "3rd Year",
+            time: "12 Jan 10:40",
+            status: "Approved",
+          },
+        ]
+  );
 
   const toggleSelect = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
+  };
+
+  /* ================= DECISION HANDLER ================= */
+  const applyDecision = (type, student) => {
+    const updatedStatus = type === "approve" ? "Approved" : "Rejected";
+
+    setRegistrations((prev) =>
+      prev.map((r) =>
+        r.id === student.id ? { ...r, status: updatedStatus } : r
+      )
+    );
+
+    // Prepare email payload (no sending here)
+    const emailPayload =
+      type === "approve"
+        ? approvalEmailMessage(student, selectedEventObj.name)
+        : rejectionEmailMessage(student, selectedEventObj.name);
+
+    console.log("Email Payload (audit-safe):", emailPayload);
+
+    setConfirmAction(null);
   };
 
   /* ================= TABLE ================= */
@@ -106,37 +158,22 @@ function AdminRegistrations() {
       />,
       isPending && !locked ? (
         <div style={{ display: "flex", gap: "6px" }}>
-          <Button
-            size="sm"
-            onClick={() =>
-              setConfirmAction({ type: "approve", target: reg })
-            }
-          >
+          <Button size="sm" onClick={() => setConfirmAction({ type: "approve", target: reg })}>
             Approve
           </Button>
           <Button
             size="sm"
             variant="secondary"
-            onClick={() =>
-              setConfirmAction({ type: "reject", target: reg })
-            }
+            onClick={() => setConfirmAction({ type: "reject", target: reg })}
           >
             Reject
           </Button>
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => setViewStudent(reg)}
-          >
+          <Button size="sm" variant="secondary" onClick={() => setViewStudent(reg)}>
             View
           </Button>
         </div>
       ) : (
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => setViewStudent(reg)}
-        >
+        <Button size="sm" variant="secondary" onClick={() => setViewStudent(reg)}>
           View
         </Button>
       ),
@@ -145,7 +182,7 @@ function AdminRegistrations() {
 
   return (
     <>
-      {/* ================= SECTION 1: HEADER ================= */}
+      {/* ================= HEADER ================= */}
       <Card>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
@@ -174,21 +211,11 @@ function AdminRegistrations() {
         </div>
       </Card>
 
-      {/* ================= GOVERNANCE LOCK NOTICE ================= */}
+      {/* ================= LIVE LOCK NOTICE ================= */}
       {isEventLive && (
         <Card>
           <div style={{ color: "#b91c1c", fontSize: "13px", fontWeight: "500" }}>
-            This event is LIVE. Registrations are locked and cannot be approved
-            or rejected.
-          </div>
-        </Card>
-      )}
-
-      {/* ================= EMPTY STATE ================= */}
-      {selectedEvent && registrations.length === 0 && (
-        <Card>
-          <div style={{ textAlign: "center", color: "#6b7280" }}>
-            No registrations found for the selected event.
+            This event is LIVE. Registrations are locked.
           </div>
         </Card>
       )}
@@ -202,7 +229,7 @@ function AdminRegistrations() {
 
       {/* ================= VIEW MODAL ================= */}
       {viewStudent && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center" }}>
           <div style={{ background: "#fff", padding: "20px", borderRadius: "8px", width: "420px" }}>
             <h3>Student Registration Details</h3>
             <div style={{ fontSize: "13px", lineHeight: "1.8", marginTop: "12px" }}>
@@ -218,19 +245,23 @@ function AdminRegistrations() {
         </div>
       )}
 
-      {/* ================= CONFIRMATION MODAL ================= */}
+      {/* ================= CONFIRM MODAL ================= */}
       {confirmAction && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", display: "flex", justifyContent: "center", alignItems: "center" }}>
           <div style={{ background: "#fff", padding: "20px", borderRadius: "8px", width: "420px" }}>
-            <h3>{confirmAction.type === "approve" ? "Approve Registration" : "Reject Registration"}</h3>
+            <h3>
+              {confirmAction.type === "approve" ? "Approve Registration" : "Reject Registration"}
+            </h3>
             <p style={{ fontSize: "13px", marginTop: "8px" }}>
               {confirmAction.type === "approve"
                 ? "Approved students will be eligible for attendance, feedback, and certificates."
-                : "Rejected students will not be allowed to participate in this event."}
+                : "The student will be politely informed and encouraged for future events."}
             </p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "16px" }}>
               <Button variant="secondary" onClick={() => setConfirmAction(null)}>Cancel</Button>
-              <Button onClick={() => setConfirmAction(null)}>Confirm</Button>
+              <Button onClick={() => applyDecision(confirmAction.type, confirmAction.target)}>
+                Confirm
+              </Button>
             </div>
           </div>
         </div>

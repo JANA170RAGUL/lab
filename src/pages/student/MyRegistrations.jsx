@@ -27,11 +27,11 @@ const REGISTRATIONS = [
     dates: "10–12 January",
     duration: "3 Days",
     venue: "IDEA Lab",
-    registrationStatus: "Approved", // Pending Approval | Approved | Rejected | Completed
-    eventStatus: "LIVE", // LIVE | Completed | Archived
-    attendance: "Submitted", // Submitted | Not Submitted | —
-    feedback: "Pending", // Submitted | Pending | —
-    certificate: "Not Available", // Available | Not Available
+    registrationStatus: "Approved",
+    eventStatus: "LIVE",
+    attendance: "Submitted",
+    feedback: "Pending",
+    certificate: "Not Available",
   },
   {
     id: 2,
@@ -85,33 +85,30 @@ const filterStyle = {
 function MyRegistrations() {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  /* ================= STATUS BADGE ================= */
-  const statusBadge = (status) => {
-    switch (status) {
-      case "Pending Approval":
-        return <Badge label="Pending Approval" type="warning" />;
-      case "Approved":
-        return <Badge label="Approved" type="success" />;
-      case "Rejected":
-        return <Badge label="Rejected" type="danger" />;
-      case "Completed":
-        return <Badge label="Completed" type="info" />;
-      default:
-        return <Badge label={status} />;
-    }
+  /* ================= STATUS BADGES ================= */
+  const registrationBadge = (status) => {
+    if (status === "Pending Approval")
+      return <Badge label="Pending Approval" type="warning" />;
+    if (status === "Approved")
+      return <Badge label="Approved" type="success" />;
+    if (status === "Rejected")
+      return <Badge label="Rejected" type="danger" />;
+    if (status === "Completed")
+      return <Badge label="Completed" type="info" />;
+    return <Badge label={status} />;
   };
 
-  /* ================= ACTIONS LOGIC ================= */
+  /* ================= ACTION LOGIC (STRICT) ================= */
   const renderActions = (event) => {
     if (event.registrationStatus === "Pending Approval") {
-      return <div style={mutedText}>Awaiting approval</div>;
+      return <div style={mutedText}>Awaiting admin approval</div>;
     }
 
     if (event.registrationStatus === "Rejected") {
       return <div style={mutedText}>Participation not allowed</div>;
     }
 
-    if (event.eventStatus === "LIVE" && event.registrationStatus === "Approved") {
+    if (event.registrationStatus === "Approved" && event.eventStatus === "LIVE") {
       return (
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           <Button variant="secondary">Go to Attendance</Button>
@@ -133,19 +130,19 @@ function MyRegistrations() {
 
   return (
     <>
-      {/* ================= SECTION 1: PAGE HEADER ================= */}
+      {/* ================= PAGE HEADER ================= */}
       <Card>
         <div>
           <div style={{ fontSize: "20px", fontWeight: "700" }}>
             My Registrations
           </div>
           <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
-            Track all your IDEA Lab event registrations and participation status
+            Track your event approvals, participation, and certificates
           </div>
         </div>
       </Card>
 
-      {/* ================= SECTION 2: FILTERS & SEARCH ================= */}
+      {/* ================= FILTERS ================= */}
       <Card title="Filter Registrations">
         <div
           style={{
@@ -176,25 +173,19 @@ function MyRegistrations() {
         <input
           type="text"
           placeholder="Search by event name"
-          style={{
-            width: "100%",
-            padding: "8px 10px",
-            border: "1px solid #d1d5db",
-            borderRadius: "6px",
-            fontSize: "13px",
-          }}
+          style={{ ...filterStyle, width: "100%" }}
         />
       </Card>
 
-      {/* ================= SECTION 3: REGISTRATION LIST ================= */}
+      {/* ================= REGISTRATION CARDS ================= */}
       {REGISTRATIONS.length === 0 ? (
         <Card>
           <div style={{ textAlign: "center", padding: "32px" }}>
             <div style={{ fontSize: "16px", fontWeight: "600" }}>
-              You have not registered for any events yet
+              You have not registered for any events
             </div>
             <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "6px" }}>
-              Visit Live Events to participate in IDEA Lab activities.
+              Visit Live Events to participate.
             </div>
           </div>
         </Card>
@@ -208,29 +199,21 @@ function MyRegistrations() {
         >
           {REGISTRATIONS.map((event) => (
             <Card key={event.id}>
-              <div style={{ fontWeight: "700", marginBottom: "8px" }}>
+              <div style={{ fontWeight: "700", marginBottom: "6px" }}>
                 {event.name}
               </div>
 
               <div style={{ fontSize: "13px", lineHeight: "1.7" }}>
                 <div><strong>Type:</strong> {event.type}</div>
-                <div>
-                  <strong>Dates:</strong> {event.dates} ({event.duration})
-                </div>
-                <div><strong>Registration:</strong> {statusBadge(event.registrationStatus)}</div>
+                <div><strong>Dates:</strong> {event.dates} ({event.duration})</div>
+                <div><strong>Registration:</strong> {registrationBadge(event.registrationStatus)}</div>
                 <div><strong>Event Status:</strong> {event.eventStatus}</div>
+                <div><strong>Attendance:</strong> {event.attendance}</div>
+                <div><strong>Feedback:</strong> {event.feedback}</div>
+                <div><strong>Certificate:</strong> {event.certificate}</div>
               </div>
 
-              {/* Completed indicators */}
-              {event.registrationStatus === "Completed" && (
-                <div style={{ fontSize: "13px", marginTop: "10px" }}>
-                  <div><strong>Attendance:</strong> {event.attendance}</div>
-                  <div><strong>Feedback:</strong> {event.feedback}</div>
-                  <div><strong>Certificate:</strong> {event.certificate}</div>
-                </div>
-              )}
-
-              <div style={{ marginTop: "14px", display: "flex", gap: "8px" }}>
+              <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
                 <Button variant="secondary" onClick={() => setSelectedEvent(event)}>
                   View Details
                 </Button>
@@ -244,7 +227,7 @@ function MyRegistrations() {
         </div>
       )}
 
-      {/* ================= SECTION 4: EVENT DETAILS MODAL ================= */}
+      {/* ================= EVENT DETAILS MODAL ================= */}
       {selectedEvent && (
         <div style={modalOverlay}>
           <div style={modalBox}>
@@ -261,13 +244,7 @@ function MyRegistrations() {
               <div><strong>Registration Status:</strong> {selectedEvent.registrationStatus}</div>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginTop: "20px",
-              }}
-            >
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "20px" }}>
               <Button onClick={() => setSelectedEvent(null)}>Close</Button>
             </div>
           </div>

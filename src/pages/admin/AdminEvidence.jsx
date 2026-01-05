@@ -1,166 +1,107 @@
 import { useState } from "react";
 import Card from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
 
 /* ================= FIXED EVIDENCE CATEGORIES ================= */
 const EVIDENCE_CATEGORIES = [
-  "Attendance Proof",
-  "Event Media (Photos / Videos)",
-  "Event Posters & Banners",
-  "Feedback Summary Reports",
-  "Certificate Proof",
-  "Approval Confirmation",
-  "Awards & Outcomes",
-  "Other Supporting Documents",
-];
-
-/* ================= SAMPLE EVIDENCE FILES ================= */
-const EVIDENCE_FILES = [
-  {
-    id: 1,
-    name: "attendance_day1.pdf",
-    category: "Attendance Proof",
-    uploadedOn: "12 Jan 05:10 PM",
-    status: "Uploaded",
-  },
-  {
-    id: 2,
-    name: "event_poster.png",
-    category: "Event Posters & Banners",
-    uploadedOn: "10 Jan 09:00 AM",
-    status: "Verified",
-  },
-  {
-    id: 3,
-    name: "feedback_summary.pdf",
-    category: "Feedback Summary Reports",
-    uploadedOn: "13 Jan 06:30 PM",
-    status: "Finalized",
-  },
+  "Management Approval",
+  "Event Brochure",
+  "Event Agenda",
+  "Detailed Event Report",
+  "Event Photos",
+  "Sample Project / Prototype",
+  "Bills Copy",
 ];
 
 function AdminEvidence() {
-  const eventCompleted = true;
-  const [evidenceFinalized, setEvidenceFinalized] = useState(false);
-
-  /* ================= MODAL STATES ================= */
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [showFinalizeModal, setShowFinalizeModal] = useState(false);
-  const [previewFile, setPreviewFile] = useState(null);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
 
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
+  /* ================= EXPENSE STATE ================= */
+  const [expenses, setExpenses] = useState([]);
+  const [expenseItem, setExpenseItem] = useState({
+    category: "",
+    description: "",
+    quantity: 1,
+    amount: "",
+    remarks: "",
+  });
+
+  const totalAmount =
+    expenseItem.quantity * (Number(expenseItem.amount) || 0);
+
+  /* ================= SAMPLE EVIDENCE DATA ================= */
+  const evidenceList = [
+    {
+      id: 1,
+      name: "approval_letter.pdf",
+      category: "Management Approval",
+      status: "Uploaded",
+    },
+    {
+      id: 2,
+      name: "event_photos.zip",
+      category: "Event Photos",
+      status: "Verified",
+    },
+    {
+      id: 3,
+      name: "Expense Statement (Manual Entry)",
+      category: "Expense Statement",
+      status: expenses.length > 0 ? "Entered" : "Pending",
+    },
+  ];
 
   return (
     <>
-      {/* ================= SECTION 1: PAGE HEADER ================= */}
+      {/* ================= HEADER ================= */}
       <Card>
-        <div style={headerRow}>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
-            <div style={title}>Evidence</div>
-            <div style={subtitle}>Event Evidence & Inspection Readiness</div>
-          </div>
-
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <select style={selectStyle}>
-              <option>Select Event</option>
-              <option>FDP on Artificial Intelligence</option>
-            </select>
-            <Badge
-              label={evidenceFinalized ? "Finalized" : "Completed"}
-              type={evidenceFinalized ? "success" : "warning"}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* ================= SECTION 2: EVENT SUMMARY ================= */}
-      <Card>
-        <div style={summaryGrid}>
-          <SummaryItem label="Event Name" value="FDP on Artificial Intelligence" />
-          <SummaryItem label="Event Dates" value="10–12 January (3 Days)" />
-          <SummaryItem label="Event Status" value="Completed" />
-          <SummaryItem
-            label="Evidence Files Uploaded"
-            value={EVIDENCE_FILES.length}
-            highlight
-          />
-        </div>
-      </Card>
-
-      {/* ================= SECTION 3: CONTROL PANEL ================= */}
-      <Card title="Evidence Controls">
-        <div style={{ display: "flex", gap: "16px" }}>
-          <Button
-            disabled={evidenceFinalized}
-            onClick={() => setShowUploadModal(true)}
-          >
-            Upload Evidence
-          </Button>
-
-          <Button
-            variant="secondary"
-            disabled={!eventCompleted || evidenceFinalized}
-            onClick={() => setShowFinalizeModal(true)}
-          >
-            Finalize Evidence
-          </Button>
-        </div>
-      </Card>
-
-      {/* ================= SECTION 4: CATEGORIES ================= */}
-      <Card title="Evidence Categories">
-        <div style={categoryGrid}>
-          {EVIDENCE_CATEGORIES.map((cat) => (
-            <div key={cat} style={categoryItem}>
-              {cat}
+            <div style={{ fontSize: "20px", fontWeight: "700" }}>
+              Event Evidence Repository
             </div>
-          ))}
+            <div style={{ fontSize: "13px", color: "#6b7280" }}>
+              Inspection-Ready Evidence & Financial Records
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: "10px" }}>
+            <Button onClick={() => setShowUploadModal(true)}>
+              Upload Evidence
+            </Button>
+            <Button variant="secondary" onClick={() => setShowExpenseModal(true)}>
+              Enter Expense Statement
+            </Button>
+          </div>
         </div>
       </Card>
 
-      {/* ================= SECTION 5: FILE TABLE ================= */}
-      <Card title="Uploaded Evidence Files">
+      {/* ================= EVIDENCE TABLE ================= */}
+      <Card title="Evidence Records">
         <table style={table}>
           <thead>
             <tr>
-              <th style={th}>File Name</th>
+              <th style={th}>Item</th>
               <th style={th}>Category</th>
-              <th style={th}>Uploaded On</th>
               <th style={th}>Status</th>
               <th style={th}>Action</th>
             </tr>
           </thead>
           <tbody>
-            {EVIDENCE_FILES.map((file) => (
-              <tr key={file.id}>
-                <td style={td}>{file.name}</td>
-                <td style={td}>{file.category}</td>
-                <td style={td}>{file.uploadedOn}</td>
+            {evidenceList.map((e) => (
+              <tr key={e.id}>
+                <td style={td}>{e.name}</td>
+                <td style={td}>{e.category}</td>
                 <td style={td}>
                   <Badge
-                    label={evidenceFinalized ? "Finalized" : file.status}
-                    type={
-                      evidenceFinalized
-                        ? "success"
-                        : file.status === "Verified"
-                        ? "warning"
-                        : "default"
-                    }
+                    label={e.status}
+                    type={e.status === "Verified" ? "success" : "warning"}
                   />
                 </td>
                 <td style={td}>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      setPreviewFile(file);
-                      setShowPreviewModal(true);
-                    }}
-                  >
-                    View
-                  </Button>
+                  <Button variant="secondary">View</Button>
                 </td>
               </tr>
             ))}
@@ -168,218 +109,155 @@ function AdminEvidence() {
         </table>
       </Card>
 
-      {/* ================= SECTION 6: UPLOAD MODAL ================= */}
+      {/* ================= UPLOAD MODAL (NON-EXPENSE) ================= */}
       {showUploadModal && (
-        <div style={overlay}>
-          <div style={modal}>
-            <h3 style={{ marginBottom: "12px" }}>Upload Evidence</h3>
+        <Modal title="Upload Evidence" onClose={() => setShowUploadModal(false)}>
+          <select style={input}>
+            <option>Select Evidence Category *</option>
+            {EVIDENCE_CATEGORIES.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
 
-            <label style={label}>Evidence Category</label>
-            <select
-              style={input}
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="">Select Category</option>
-              {EVIDENCE_CATEGORIES.map((cat) => (
-                <option key={cat}>{cat}</option>
-              ))}
-            </select>
+          <input type="file" style={{ marginTop: "12px" }} />
 
-            <label style={label}>Select File</label>
+          <Footer
+            onCancel={() => setShowUploadModal(false)}
+            onSave={() => {
+              alert("Evidence uploaded");
+              setShowUploadModal(false);
+            }}
+          />
+        </Modal>
+      )}
+
+      {/* ================= EXPENSE STATEMENT MODAL ================= */}
+      {showExpenseModal && (
+        <Modal
+          title="Expense Statement (Manual Entry)"
+          onClose={() => setShowExpenseModal(false)}
+        >
+          <input
+            style={input}
+            placeholder="Expense Category"
+            value={expenseItem.category}
+            onChange={(e) =>
+              setExpenseItem({ ...expenseItem, category: e.target.value })
+            }
+          />
+
+          <textarea
+            style={input}
+            placeholder="Description"
+            value={expenseItem.description}
+            onChange={(e) =>
+              setExpenseItem({ ...expenseItem, description: e.target.value })
+            }
+          />
+
+          <div style={{ display: "flex", gap: "8px" }}>
             <input
-              type="file"
-              accept=".pdf,.jpg,.jpeg,.png"
               style={input}
-              onChange={(e) => setSelectedFile(e.target.files[0])}
+              type="number"
+              placeholder="Quantity"
+              value={expenseItem.quantity}
+              onChange={(e) =>
+                setExpenseItem({
+                  ...expenseItem,
+                  quantity: Number(e.target.value),
+                })
+              }
             />
-
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
-              <Button variant="secondary" onClick={() => setShowUploadModal(false)}>
-                Cancel
-              </Button>
-              <Button
-                disabled={!selectedCategory || !selectedFile}
-                onClick={() => {
-                  alert("Evidence uploaded (UI only)");
-                  setShowUploadModal(false);
-                }}
-              >
-                Upload
-              </Button>
-            </div>
+            <input
+              style={input}
+              type="number"
+              placeholder="Amount"
+              value={expenseItem.amount}
+              onChange={(e) =>
+                setExpenseItem({ ...expenseItem, amount: e.target.value })
+              }
+            />
           </div>
-        </div>
-      )}
 
-      {/* ================= SECTION 7: PREVIEW MODAL ================= */}
-      {showPreviewModal && previewFile && (
-        <div style={overlay}>
-          <div style={modal}>
-            <h3 style={{ marginBottom: "12px" }}>Evidence Preview</h3>
-            <p><strong>File:</strong> {previewFile.name}</p>
-            <p><strong>Category:</strong> {previewFile.category}</p>
-            <p><strong>Uploaded:</strong> {previewFile.uploadedOn}</p>
-
-            <div style={previewBox}>
-              File preview will appear here
-            </div>
-
-            <div style={{ textAlign: "right" }}>
-              <Button
-                variant="secondary"
-                onClick={() => setShowPreviewModal(false)}
-              >
-                Close
-              </Button>
-            </div>
+          <div style={{ fontSize: "13px", marginTop: "8px" }}>
+            <strong>Total:</strong> ₹{totalAmount}
           </div>
-        </div>
-      )}
 
-      {/* ================= SECTION 8: FINALIZE CONFIRMATION MODAL ================= */}
-      {showFinalizeModal && (
-        <div style={overlay}>
-          <div style={modal}>
-            <h3 style={{ marginBottom: "12px", color: "#b91c1c" }}>
-              Finalize Evidence
-            </h3>
+          <textarea
+            style={input}
+            placeholder="Remarks"
+            value={expenseItem.remarks}
+            onChange={(e) =>
+              setExpenseItem({ ...expenseItem, remarks: e.target.value })
+            }
+          />
 
-            <p style={{ fontSize: "13px", marginBottom: "12px" }}>
-              Finalizing evidence will lock all uploaded files for this event.
-            </p>
-
-            <ul style={{ fontSize: "13px", paddingLeft: "18px", marginBottom: "16px" }}>
-              <li>No new uploads allowed</li>
-              <li>No edits or replacements</li>
-              <li>Action cannot be undone</li>
-            </ul>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
-              <Button
-                variant="secondary"
-                onClick={() => setShowFinalizeModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  setEvidenceFinalized(true);
-                  setShowFinalizeModal(false);
-                }}
-              >
-                Confirm Finalize
-              </Button>
-            </div>
-          </div>
-        </div>
+          <Footer
+            onCancel={() => setShowExpenseModal(false)}
+            onSave={() => {
+              setExpenses([...expenses, { ...expenseItem, totalAmount }]);
+              alert("Expense entry saved");
+              setShowExpenseModal(false);
+            }}
+          />
+        </Modal>
       )}
     </>
   );
 }
 
-/* ================= HELPERS & STYLES ================= */
-
-const SummaryItem = ({ label, value, highlight }) => (
-  <div>
-    <strong>{label}</strong>
-    <div style={{ fontWeight: highlight ? "700" : "400", color: highlight ? "#2563eb" : "" }}>
-      {value}
+/* ================= SHARED COMPONENTS ================= */
+function Modal({ title, children, onClose }) {
+  return (
+    <div style={overlay}>
+      <div style={modal}>
+        <h3>{title}</h3>
+        {children}
+        <div style={{ marginTop: "12px", fontSize: "12px", color: "#6b7280" }}>
+          Expense data becomes read-only after evidence finalization.
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
-const headerRow = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  flexWrap: "wrap",
-};
+function Footer({ onCancel, onSave }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "16px" }}>
+      <Button variant="secondary" onClick={onCancel}>
+        Cancel
+      </Button>
+      <Button onClick={onSave}>Save</Button>
+    </div>
+  );
+}
 
-const title = { fontSize: "20px", fontWeight: "700" };
-const subtitle = { fontSize: "13px", color: "#6b7280" };
-
-const selectStyle = {
-  padding: "8px",
+/* ================= STYLES ================= */
+const table = { width: "100%", borderCollapse: "collapse", fontSize: "13px" };
+const th = { textAlign: "left", padding: "10px", borderBottom: "1px solid #e5e7eb" };
+const td = { padding: "10px", borderBottom: "1px solid #e5e7eb" };
+const input = {
+  width: "100%",
+  padding: "8px 10px",
+  marginTop: "8px",
   borderRadius: "6px",
   border: "1px solid #d1d5db",
-};
-
-const summaryGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-  gap: "16px",
   fontSize: "13px",
 };
-
-const categoryGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-  gap: "10px",
-};
-
-const categoryItem = {
-  padding: "10px",
-  backgroundColor: "#f3f4f6",
-  borderRadius: "6px",
-  borderLeft: "4px solid #2563eb",
-  fontSize: "13px",
-};
-
-const table = {
-  width: "100%",
-  borderCollapse: "collapse",
-  fontSize: "13px",
-};
-
-const th = {
-  textAlign: "left",
-  padding: "10px",
-  borderBottom: "1px solid #e5e7eb",
-};
-
-const td = {
-  padding: "10px",
-  borderBottom: "1px solid #e5e7eb",
-};
-
 const overlay = {
   position: "fixed",
   inset: 0,
-  backgroundColor: "rgba(0,0,0,0.4)",
+  background: "rgba(0,0,0,0.4)",
   display: "flex",
-  alignItems: "center",
   justifyContent: "center",
+  alignItems: "center",
   zIndex: 50,
 };
-
 const modal = {
-  backgroundColor: "#ffffff",
-  padding: "20px",
-  borderRadius: "8px",
-  width: "420px",
-};
-
-const previewBox = {
-  height: "140px",
-  backgroundColor: "#f3f4f6",
-  borderRadius: "6px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: "12px",
-  color: "#6b7280",
-  marginBottom: "16px",
-};
-
-const label = { fontSize: "13px", fontWeight: "600", marginTop: "10px" };
-const input = {
-  width: "100%",
-  padding: "8px",
-  marginTop: "6px",
-  marginBottom: "12px",
-  borderRadius: "6px",
-  border: "1px solid #d1d5db",
+  background: "#fff",
+  padding: "24px",
+  width: "560px",
+  borderRadius: "10px",
 };
 
 export default AdminEvidence;

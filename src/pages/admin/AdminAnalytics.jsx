@@ -154,27 +154,72 @@ function AdminAnalytics() {
         </div>
       </Card>
 
-      {/* ================= SECTION 7: REPORT PREVIEW MODAL ================= */}
+      {/* ================= SECTION 7: REPORT PREVIEW MODAL (STRICT ORDER) ================= */}
       {showPreview && (
         <div style={modalOverlay}>
           <div style={modalBox}>
-            <div style={{ fontSize: "18px", fontWeight: "700" }}>
-              Report Preview
+            <div style={{ fontSize: "18px", fontWeight: "700", marginBottom: "12px" }}>
+              Event Report Preview (Inspection Format)
             </div>
 
             <div
               style={{
-                marginTop: "16px",
-                padding: "16px",
+                maxHeight: "60vh",
+                overflowY: "auto",
+                padding: "12px",
                 backgroundColor: "#f9fafb",
                 borderRadius: "6px",
-                minHeight: "160px",
                 fontSize: "13px",
                 color: "#374151",
               }}
             >
-              This is a preview of the generated report based on the current
-              filters. Finalized data only. No edits allowed.
+              <ReportSection title="1. Front Page">
+                Institute Name, Academic Year, Event Title, Dates
+              </ReportSection>
+
+              <ReportSection title="2. Management Approval">
+                Uploaded management approval document.
+              </ReportSection>
+
+              <ReportSection title="3. Event Brochure">
+                Official event brochure.
+              </ReportSection>
+
+              <ReportSection title="4. Participants List (System Generated)">
+                Approved participants list.
+              </ReportSection>
+
+              <ReportSection title="5. Agenda">
+                Event agenda document.
+              </ReportSection>
+
+              <ReportSection title="6. Detailed Event Report">
+                Detailed narrative report of the event.
+              </ReportSection>
+
+              <ReportSection title="7. Attendance Sheet (System Generated)">
+                Attendance derived from finalized records.
+              </ReportSection>
+
+              <ReportSection title="8. Feedback Summary (System Generated)">
+                Aggregated feedback statistics.
+              </ReportSection>
+
+              <ReportSection title="9. Event Photos">
+                Official event photographs.
+              </ReportSection>
+
+              <ReportSection title="10. Sample Project / Prototype">
+                Prototype or project documentation (if applicable).
+              </ReportSection>
+
+              <ReportSection title="11. Expense Statement (Manual Entry)">
+                Structured expense statement rendered from entries.
+              </ReportSection>
+
+              <ReportSection title="12. Bills Copies">
+                Uploaded bills linked to expenses.
+              </ReportSection>
             </div>
 
             <div
@@ -182,7 +227,7 @@ function AdminAnalytics() {
                 display: "flex",
                 justifyContent: "flex-end",
                 gap: "12px",
-                marginTop: "20px",
+                marginTop: "16px",
               }}
             >
               <Button variant="secondary">Download PDF</Button>
@@ -222,6 +267,23 @@ function ChartPlaceholder({ title }) {
       }}
     >
       {title} (Chart Placeholder)
+    </div>
+  );
+}
+
+function ReportSection({ title, children }) {
+  return (
+    <div
+      style={{
+        marginBottom: "14px",
+        padding: "10px",
+        backgroundColor: "#ffffff",
+        borderRadius: "6px",
+        border: "1px solid #e5e7eb",
+      }}
+    >
+      <div style={{ fontWeight: "600", marginBottom: "6px" }}>{title}</div>
+      <div style={{ fontSize: "12px", color: "#4b5563" }}>{children}</div>
     </div>
   );
 }
@@ -273,7 +335,7 @@ const modalBox = {
   padding: "24px",
   borderRadius: "10px",
   width: "90%",
-  maxWidth: "520px",
+  maxWidth: "620px",
 };
 
 export default AdminAnalytics;
