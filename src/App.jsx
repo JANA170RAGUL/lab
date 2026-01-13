@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import RoleSelection from "./pages/RoleSelection";
+import Login from "./pages/Login";
 import AccessDenied from "./pages/AccessDenied";
 
 import AdminLayout from "./layouts/AdminLayout";
@@ -31,6 +32,7 @@ import AdminOutcomes from "./pages/admin/AdminOutcomes";
 import AdminOutcomeDetails from "./pages/admin/AdminOutcomeDetails";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import ReviewerSnapshot from "./pages/reviewer/ReviewerSnapshot";
+
 import MyRegistrations from "./pages/student/MyRegistrations";
 import Attendance from "./pages/student/Attendance";
 import Feedback from "./pages/student/Feedback";
@@ -41,7 +43,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Entry */}
-        <Route path="/" element={<RoleSelection />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/select-role" element={<RoleSelection />} />
         <Route path="/access-denied" element={<AccessDenied />} />
 
         {/* Admin Routes */}

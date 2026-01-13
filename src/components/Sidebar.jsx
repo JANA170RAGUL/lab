@@ -1,57 +1,47 @@
 import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import "./Sidebar.css";
 
 function Sidebar() {
-  const linkStyle = ({ isActive }) => ({
-    display: "block",
-    padding: "8px 12px",
-    borderRadius: "6px",
-    color: isActive ? "#800000" : "#111827",
-    fontWeight: isActive ? "600" : "500",
-    textDecoration: "none",
-    backgroundColor: isActive ? "#fbeaea" : "transparent",
-  });
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const menuItems = [
+    { path: "/admin/dashboard", label: "Dashboard" },
+    { path: "/admin/events", label: "Events" },
+    { path: "/admin/registrations", label: "Registrations" },
+    { path: "/admin/attendance", label: "Attendance" },
+    { path: "/admin/feedback", label: "Feedback" },
+    { path: "/admin/certificates", label: "Certificates" },
+    { path: "/admin/evidence", label: "Evidence" },
+    { path: "/admin/outcomes", label: "Outcomes" },
+    { path: "/admin/reports", label: "Reports" },
+  ];
 
   return (
-    <aside
-      style={{
-        width: "220px",
-        backgroundColor: "#fafafa",
-        borderRight: "1px solid #e5e7eb",
-        padding: "20px",
-      }}
-    >
-      <p style={{ fontWeight: "600", marginBottom: "12px" }}>
-        Admin Menu
-      </p>
+    <aside className={`admin-sidebar ${isCollapsed ? "collapsed" : ""}`}>
+      <div className="sidebar-header">
+        <h3 className="sidebar-title">Admin Menu</h3>
+        <button
+          className="collapse-btn"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label="Toggle sidebar"
+        >
+          {isCollapsed ? "→" : "←"}
+        </button>
+      </div>
 
-      <nav>
-        <NavLink to="/admin/dashboard" style={linkStyle}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/admin/events" style={linkStyle}>
-          Events
-        </NavLink>
-        <NavLink to="/admin/registrations" style={linkStyle}>
-          Registrations
-        </NavLink>
-        <NavLink to="/admin/attendance" style={linkStyle}>
-          Attendance
-        </NavLink>
-        <NavLink to="/admin/feedback" style={linkStyle}>
-          Feedback
-        </NavLink>
-        <NavLink to="/admin/certificates" style={linkStyle}>
-          Certificates
-        </NavLink>
-        <NavLink to="/admin/evidence" style={linkStyle}>
-          Evidence
-        </NavLink>
-        <NavLink to="/admin/outcomes" style={linkStyle}>
-          Outcomes
-        </NavLink>
-        <NavLink to="/admin/reports" style={linkStyle}>
-          Reports
-        </NavLink>
+      <nav className="sidebar-nav">
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `sidebar-link ${isActive ? "active" : ""}`
+            }
+          >
+            <span className="sidebar-label">{item.label}</span>
+          </NavLink>
+        ))}
       </nav>
     </aside>
   );

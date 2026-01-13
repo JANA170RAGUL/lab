@@ -14,8 +14,12 @@ function StudentLayout() {
           style={{
             flex: 1,
             padding: "24px",
-            backgroundColor: "#f9fafb",
+            background: "linear-gradient(135deg, #780206 0%, #061161 100%)",
+            backgroundAttachment: "fixed",
+            backgroundSize: "cover",
             overflowY: "auto",
+            width: "100%",
+            minHeight: "100vh",
           }}
         >
           <Outlet />

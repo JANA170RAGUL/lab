@@ -6,14 +6,18 @@ body {
   color: #111827;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   color: #111827;
 }
 
-p, li {
+p,
+li {
   font-size: 14px;
   line-height: 1.6;
 }
-header{
+
+header {
   flex-shrink: 0;
 }

@@ -11,24 +11,26 @@ function AdminLayout() {
         <Sidebar />
 
         <main
-  style={{
-    flex: 1,
-    padding: "32px",
-    backgroundColor: "#f9fafb",
-    overflowY: "auto",
-    width: "100%",
-  }}
->
-  <div
-    style={{
-      width: "100%",
-      maxWidth: "1400px",   // 👈 controls max readable width
-      margin: "0 auto",     // 👈 centers nicely on large screens
-    }}
-  >
-    <Outlet />
-  </div>
-</main>
+          style={{
+            flex: 1,
+            padding: "32px",
+            background: "linear-gradient(135deg, #360033 0%, #0b8793 100%)",
+            backgroundAttachment: "fixed",
+            overflowY: "auto",
+            width: "100%",
+            minHeight: "100vh",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "1400px",
+              margin: "0 auto",
+            }}
+          >
+            <Outlet />
+          </div>
+        </main>
       </div>
     </div>
   );
